@@ -338,6 +338,7 @@ namespace SerialCommunication
                         serialPortArduino.WriteLine(commando);
                     }
                 }
+                
             }
             catch (Exception exception)
             {
@@ -348,5 +349,28 @@ namespace SerialCommunication
                 labelStatus.Text = "Status: Disconnected";
             }
         }
+
+        private void timerPingPong_Tick(object sender, EventArgs e)
+        {
+            if (serialPortArduino.IsOpen)
+            {
+                //radioButtonVerbonden.Checked = true;
+                //buttonConnect.Text = "Disconnect";
+                //labelStatus.Text = "Status: Connected";
+                
+               
+            }
+            else
+            {
+                
+                radioButtonVerbonden.Checked = false;
+                buttonConnect.Text = "Connect";
+                labelStatus.Text = "Status: Disconnected";
+            }
+        }
+
+
+        }
     }
-}
+
+

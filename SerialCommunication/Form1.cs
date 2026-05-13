@@ -254,6 +254,8 @@ namespace SerialCommunication
         private void tabControl_SelectedIndexChanged(object sender, EventArgs e)
         {
             timerOefening3.Enabled = tabControl.SelectedIndex == 3;
+            timerOefening5.Enabled = tabControl.SelectedIndex == 5;
+
         }
 
         private void timerOefening3_Tick(object sender, EventArgs e)
@@ -284,6 +286,57 @@ namespace SerialCommunication
                     antwoord = antwoord.Substring(4);
                     radioButtonDigital7.Checked = (antwoord == "1");
 
+                }
+            }
+            catch (Exception exception)
+            {
+                labelStatus.Text = "ERROR!: " + exception.Message;
+                serialPortArduino.Close();
+                buttonConnect.Text = "Connect";
+                radioButtonVerbonden.Enabled = false;
+                labelStatus.Text = "Status: Disconnected";
+            }
+        }
+
+        private void timerOefening5_Tick(object sender, EventArgs e)
+        {
+            try
+            {
+                if (serialPortArduino.IsOpen)
+                {
+                    serialPortArduino.ReadExisting();
+                    string commando = "get a0";
+                    serialPortArduino.WriteLine(commando);
+                    string antwoord = serialPortArduino.ReadLine();
+                    antwoord = antwoord.TrimEnd();
+                    antwoord = antwoord.Substring(4);
+                    int ingesteldV = Int32.Parse(antwoord);
+
+                    commando = "get a1";
+                    serialPortArduino.WriteLine(commando);
+                    antwoord = serialPortArduino.ReadLine();
+                    antwoord = antwoord.TrimEnd();
+                    antwoord = antwoord.Substring(4);
+                    int werkelijkV = Int32.Parse(antwoord);
+
+                    double ingesteldT = (double)((double)40 / (double)1023) * (double)ingesteldV + 5;
+                    double werkelijkT = (double)((double)500 / (double)1023) * (double)werkelijkV;
+
+                    labelGewensteTemp.Text = ingesteldT.ToString("00.0 °C");
+                    labelHuidigeTemp.Text = werkelijkT.ToString("00.0 °C");
+
+                    if (ingesteldT > werkelijkT)
+                    {
+                        serialPortArduino.ReadExisting();
+                        commando = "set d2 1";
+                        serialPortArduino.WriteLine(commando);
+                    }
+                    else
+                    {
+                        serialPortArduino.ReadExisting();
+                        commando = "set d2 0";
+                        serialPortArduino.WriteLine(commando);
+                    }
                 }
             }
             catch (Exception exception)
